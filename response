@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tulokset – FANFARO</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#f3f4f6; margin:0; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:18px; box-shadow:0 10px 25px rgba(15,23,42,.08); }
+    .row { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    h1 { margin:0 0 6px 0; font-size: 18px; }
+    .sub { margin:0 0 14px 0; color:#6b7280; font-size: 13px; }
+    .item { border:1px solid #e5e7eb; border-radius:14px; padding:12px; margin-top:10px; background:#fff; }
+    .title { font-weight:900; color:#111827; }
+    .meta { color:#374151; margin-top:4px; }
+    .small { color:#6b7280; font-size:12px; margin-top:6px; line-height:1.35; }
+    a { color:#047857; text-decoration:none; font-weight:800; }
+    a:hover { text-decoration:underline; }
+    .err { color:#b91c1c; font-weight:800; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div>
+          <h1>Tulokset</h1>
+          <div class="sub" id="queryLine"></div>
+        </div>
+        <div>
+          <a href="index.html">← Takaisin hakuun</a>
+        </div>
+      </div>
+
+      <div id="out"></div>
+    </div>
+  </div>
+
+<script>
+  function parseViscosity(vis) {
+    const m = (vis || "").toUpperCase().match(/^(\d+)W-(\d+)$/);
+    if (!m) return null;
+    return { w: Number(m[1]), hot: Number(m[2]), display: `${m[1]}W-${m[2]}` };
+  }
+
+  function norm(s) {
+    return (s || "")
+      .toLowerCase()
+      .replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o")
+      .replace(/[^a-z0-9]+/g,""); // poista välit ja erikoismerkit
+  }
+
+  function queryTokens(q) {
+    const parts = (q || "").toLowerCase().split(/\s+/).filter(Boolean);
+    const base = parts.map(norm).filter(Boolean);
+    // hyödyllisiä yhdistelmiä
+    const set = new Set(base);
+    if (set.has("vw") && set.has("504") && set.has("507")) { set.add("vw504"); set.add("vw507"); set.add("504507"); }
+    if (set.has("acea") && set.has("c3")) set.add("c3");
+    return Array.from(set);
+  }
+
+  function score(prod, tokens) {
+    if (!tokens.length) return 0;
+    const tset = new Set((prod.tokens || []).map(norm));
+    let s = 0;
+    for (const t of tokens) {
+      if (tset.has(t)) s += 10;
+      else {
+        for (const pt of tset) {
+          if (pt.includes(t) || t.includes(pt)) { s += 3; break; }
+        }
+      }
+    }
+    return s;
+  }
+
+  async function main() {
+    const params = new URLSearchParams(location.search);
+    const visRaw = params.get("vis") || "";
+    const qRaw = params.get("q") || "";
+
+    const v = parseViscosity(visRaw);
+    document.getElementById("queryLine").textContent =
+      `Viskositeetti: ${visRaw || "-"} · Vapaa haku: ${qRaw || "-"}`;
+
+    if (!v) {
+      document.getElementById("out").innerHTML =
+        `<div class="err">Virhe: viskositeetin muoto ei ole oikein. Käytä muotoa 0W-20, 5W-30, 5W-40 jne.</div>`;
+      return;
+    }
+
+    const res = await fetch("data/fanfaro_search_index.json");
+    const products = await res.json();
+
+    // 1) pakollinen suodatus viskositeetilla
+    const candidates = products.filter(p => Number(p.sae_w) === v.w && Number(p.sae_hot) === v.hot);
+
+    if (!candidates.length) {
+      document.getElementById("out").innerHTML =
+        `<div class="err">Ei tuotteita viskositeetille ${v.display}.</div>`;
+      return;
+    }
+
+    // 2) pisteytys vapaasanalla
+    const tokens = queryTokens(qRaw);
+    const ranked = candidates
+      .map(p => ({ p, s: score(p, tokens) }))
+      .sort((a,b) => b.s - a.s);
+
+    // jos käyttäjä ei syöttänyt hakusanoja, näytetään top 3 vain viskositeetilla
+    const top = (tokens.length ? ranked.filter(x => x.s > 0) : ranked).slice(0, 3);
+
+    const html = top.map(x => `
+      <div class="item">
+        <div class="title">${x.p.brand} ${x.p.code} – ${x.p.name}</div>
+        <div class="meta"><strong>${x.p.sae}</strong> · ${x.p.acea || ""}${x.p.api ? " · " + x.p.api : ""}</div>
+        <div class="small">
+          OEM: ${x.p.oem || "-"}<br/>
+          SAPS: ${x.p.saps || "-"} · DPF: ${x.p.dpf || "-"}<br/>
+          Profiili: ${x.p.technical_profile_id || "-"}${tokens.length ? ` · Pisteet: ${x.s}` : ""}
+        </div>
+      </div>
+    `).join("");
+
+    document.getElementById("out").innerHTML = html || `<div class="err">Ei osumia vapaasanalla. Kokeile esim. “C3”, “VW 504 507”, “LL-04”.</div>`;
+  }
+
+  main();
+</script>
+</body>
+</html>
