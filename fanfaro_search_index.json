@@ -1,0 +1,50 @@
+[
+  {
+    "brand": "Fanfaro",
+    "code": "6719",
+    "name": "6719 5W-30",
+    "sae": "5W-30",
+    "sae_w": 5,
+    "sae_hot": 30,
+    "acea": "ACEA C3",
+    "api": "API SN",
+    "ilsac": "",
+    "saps": "Mid",
+    "dpf": "Yes (DPF)",
+    "oem": "VW 504 00; VW 507 00; MB 229.51; BMW LL-04; Porsche C30",
+    "tokens": ["6719","5w30","5w-30","c3","vw","vw504","vw507","504","507","504507","longlife","ll","ll3","22951","ll04","c30","dpf"],
+    "technical_profile_id": "PC_C3_5W30_MID_DPF_VW504507"
+  },
+  {
+    "brand": "Fanfaro",
+    "code": "6705",
+    "name": "PDX 5W-40",
+    "sae": "5W-40",
+    "sae_w": 5,
+    "sae_hot": 40,
+    "acea": "ACEA C3",
+    "api": "API SN",
+    "ilsac": "",
+    "saps": "Mid",
+    "dpf": "Yes (DPF)",
+    "oem": "MB 229.51/229.31; GM dexos2; VW 505 01/505 00",
+    "tokens": ["6705","5w40","5w-40","c3","dexos2","vw50501","50501","22951","22931","dpf"],
+    "technical_profile_id": "PC_C3_5W40_MID_DPF"
+  },
+  {
+    "brand": "Fanfaro",
+    "code": "6711",
+    "name": "ESX 0W-40",
+    "sae": "0W-40",
+    "sae_w": 0,
+    "sae_hot": 40,
+    "acea": "ACEA A3/B4",
+    "api": "API SN/CH-4",
+    "ilsac": "",
+    "saps": "Full",
+    "dpf": "No",
+    "oem": "VW 502 00/505 00; MB 229.5/229.3; Porsche A40; Renault RN0700/RN0710",
+    "tokens": ["6711","0w40","0w-40","a3b4","a3","b4","vw502","vw505","2295","a40","rn0700","rn0710"],
+    "technical_profile_id": "PC_A3B4_0W40_FULL"
+  }
+]
