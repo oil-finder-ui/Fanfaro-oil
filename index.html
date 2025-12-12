@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FANFARO Voiteluaineiden Hakukone</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#f3f4f6; margin:0; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:18px; box-shadow:0 10px 25px rgba(15,23,42,.08); }
+    h1 { margin:0 0 8px 0; font-size: 20px; }
+    p { margin:0 0 14px 0; color:#6b7280; font-size: 13px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px){ .grid{ grid-template-columns: 1fr; } }
+    label { font-weight:700; font-size: 12px; color:#374151; margin-bottom:4px; display:block; }
+    input { width:100%; padding:10px 11px; border:1px solid #d1d5db; border-radius:10px; font-size:14px; background:#f9fafb; }
+    input:focus { outline:none; border-color:#059669; box-shadow:0 0 0 2px rgba(5,150,105,.15); background:#fff; }
+    .actions { margin-top: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    button { border:none; border-radius:999px; padding:10px 18px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#059669,#047857); color:#fff; }
+    .hint { font-size: 12px; color:#6b7280; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>FANFARO voiteluaineiden hakukone</h1>
+      <p>Syötä ensin <strong>viskositeetti</strong> ja sen jälkeen vapaasana (esim. “VW 504 507”, “ACEA C3”, “Mannol 7715”).</p>
+
+      <form id="frm">
+        <div class="grid">
+          <div>
+            <label for="vis">Viskositeetti (pakollinen)</label>
+            <input id="vis" name="vis" placeholder="esim. 5W-30" required />
+          </div>
+          <div>
+            <label for="q">Vapaa sana (valinnainen)</label>
+            <input id="q" name="q" placeholder="esim. VW 504 507 / C3 / Mannol 7715" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Hae</button>
+          <div class="hint">Tulokset näytetään seuraavalla sivulla.</div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("frm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const vis = document.getElementById("vis").value.trim();
+      const q = document.getElementById("q").value.trim();
+      const params = new URLSearchParams({ vis, q });
+      window.location.href = "Tulokset.html?" + params.toString();
+    });
+  </script>
+</body>
+</html>
